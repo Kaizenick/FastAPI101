@@ -4,8 +4,22 @@ import "./App.css";
 import TaglineSection from "./TaglineSection";
 
 const api = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: "/",
 });
+
+const getErrorMessage = (err, fallback) => {
+  const detail = err.response?.data?.detail;
+
+  if (typeof detail === "string") {
+    return detail;
+  }
+
+  if (Array.isArray(detail)) {
+    return detail.map((item) => item.msg).join(", ");
+  }
+
+  return fallback;
+};
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -51,7 +65,7 @@ function App() {
       setProducts(res.data);
       setError("");
     } catch (err) {
-      setError("Failed to fetch products");
+      setError(getErrorMessage(err, "Failed to fetch products"));
     }
     setLoading(false);
   };
@@ -65,7 +79,7 @@ function App() {
         setProducts(res.data);
         setError("");
       } catch (err) {
-        setError("Failed to fetch products");
+        setError(getErrorMessage(err, "Failed to fetch products"));
       }
       setLoading(false);
     };
@@ -155,7 +169,7 @@ function App() {
       resetForm();
       fetchProducts();
     } catch (err) {
-      setError(err.response?.data?.detail || "Operation failed");
+      setError(getErrorMessage(err, "Operation failed"));
     }
     setLoading(false);
   };
@@ -186,7 +200,7 @@ function App() {
       setMessage("Product deleted successfully");
       fetchProducts();
     } catch (err) {
-      setError("Delete failed");
+      setError(getErrorMessage(err, "Delete failed"));
     }
     setLoading(false);
   };
